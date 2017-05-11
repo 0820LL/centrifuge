@@ -31,41 +31,42 @@
 
 use strict;
 use warnings;
-use Getopt::Long qw(GetOptions);
-use File::Spec;
-use POSIX;
+use Getopt::Long qw(GetOptions);  # Getopt::Long - Extended processing of command line options
+use File::Spec;  # File::Spec - portably perform operations on file names
+use POSIX;  # POSIX - Perl interface to IEEE Std 1003.1
 
 
 my ($vol,$script_path,$prog);
-$prog = File::Spec->rel2abs( __FILE__ );
+$prog = File::Spec->rel2abs( __FILE__ );  # Converts a relative path to an absolute path. 
+                                          # A special token that returns the name of the file in which it occurs.
 
-while (-f $prog && -l $prog){
-    my (undef, $dir, undef) = File::Spec->splitpath($prog);
-    $prog = File::Spec->rel2abs(readlink($prog), $dir);
+while (-f $prog && -l $prog){   # -f 为普通文件  -l 为符号链接
+    my (undef, $dir, undef) = File::Spec->splitpath($prog);  # Splits a path in to volume, directory, and filename portions. On systems with no concept of volume, returns '' for volume.
+    $prog = File::Spec->rel2abs(readlink($prog), $dir);  # Returns the value of a symbolic link
 }
 
 ($vol,$script_path,$prog) 
                 = File::Spec->splitpath($prog);
-my $os_is_nix   = ($^O eq "linux") || ($^O eq "darwin");
+my $os_is_nix   = ($^O eq "linux") || ($^O eq "darwin");  # $^O 操作系统名
 my $align_bin_s = $os_is_nix ? 'centrifuge-class' : 'centrifuge-class.exe'; 
 my $build_bin   = $os_is_nix ? 'centrifuge-build' : 'centrifuge-build.exe';               
-my $align_prog  = File::Spec->catpath($vol,$script_path,'centrifuge-class');
+my $align_prog  = File::Spec->catpath($vol,$script_path,'centrifuge-class');  # Takes volume, directory and file portions and returns an entire path. 
 my $idx_ext       = 'hc'; 
 my %signo       = ();
 my @signame     = ();
 
 {
 	# Get signal info
-	use Config;
+	use Config;  #Config - access Perl configuration information
 	my $i = 0;
-	for my $name (split(' ', $Config{sig_name})) {
-		$signo{$name} = $i;
+	for my $name (split(' ', $Config{sig_name})) {  #Splits the string EXPR into a list of strings and returns the list in list context, or the size of the list in scalar context.
+		$signo{$name} = $i;                     #sig_name holds the signal names, space separated.
 		$signame[$i] = $name;
 		$i++;
 	}
 }
 
-(-x "$align_prog") ||
+(-x "$align_prog") ||  # 
 	Fail("Expected centrifuge to be in same directory with centrifuge-class:\n$script_path\n");
 
 # Get description of arguments from Centrifuge so that we can distinguish Centrifuge
