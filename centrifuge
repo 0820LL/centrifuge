@@ -71,44 +71,44 @@ my @signame     = ();
 
 # Get description of arguments from Centrifuge so that we can distinguish Centrifuge
 # args from wrapper args
-sub getBt2Desc($) {
-	my $d = shift;
+sub getBt2Desc($) {  # 定义子函数，$是
+	my $d = shift;  #返回数组@_的第一个值
 	my $cmd = "$align_prog --wrapper basic-0 --arg-desc";
-	open(my $fh, "$cmd |") || Fail("Failed to run command '$cmd'\n");
+	open(my $fh, "$cmd |") || Fail("Failed to run command '$cmd'\n");  #打开文件
 	while(readline $fh) {
-		chomp;
-		next if /^\s*$/;
-		my @ts = split(/\t/);
-		$d->{$ts[0]} = $ts[1];
+		chomp;  #去掉换行符
+		next if /^\s*$/;  #如果开头是空格，则下一行
+		my @ts = split(/\t/);  #将一行内容按照tab分割，并复值到数组@ts中
+		$d->{$ts[0]} = $ts[1];  
 	}
 	close($fh);
-	$? == 0 || Fail("Description of arguments failed!\n");
+	$? == 0 || Fail("Description of arguments failed!\n"); #$?返回上一个外部命令的状态
 }
 
-my %desc = ();
-my %wrapped = ("1" => 1, "2" => 1);
-getBt2Desc(\%desc);
+my %desc = ();  #声明一个哈希
+my %wrapped = ("1" => 1, "2" => 1);  #构建一个哈希
+getBt2Desc(\%desc);  #调用子函数  参数是哈希的
 
 # Given an option like -1, determine whether it's wrapped (i.e. should be
 # handled by this script rather than being passed along to Centrifuge)
-sub isWrapped($) { return defined($wrapped{$_[0]}); }
+sub isWrapped($) { return defined($wrapped{$_[0]}); }  #声明子函数，
 
 my @orig_argv = @ARGV;
 
 my @bt2w_args = (); # options for wrapper
 my @bt2_args  = (); # options for Centrifuge
 my $saw_dd = 0;
-for(0..$#ARGV) {
-	if($ARGV[$_] eq "--") {
+for(0..$#ARGV) {  #$#ARGV为命令行参数（不包括命令本身）的个数减一
+	if($ARGV[$_] eq "--") {  #
 		$saw_dd = 1;
 		next;
 	}
-	push @bt2w_args, $ARGV[$_] if !$saw_dd;
+	push @bt2w_args, $ARGV[$_] if !$saw_dd;   #push可以将一个元素（或者一列元素）加在数组的末尾
 	push @bt2_args,  $ARGV[$_] if  $saw_dd;
 }
 if(!$saw_dd) {
-	@bt2_args = @bt2w_args;
-	@bt2w_args= ();
+	@bt2_args = @bt2w_args;  
+	@bt2w_args= (); 
 }
 
 my $debug = 0;
@@ -119,28 +119,29 @@ my $no_unal = 0;
 my $large_idx = 0;
 my $outputFmtSam = 0 ;
 # Remove whitespace
-for my $i (0..$#bt2_args) {
-	$bt2_args[$i]=~ s/^\s+//; $bt2_args[$i] =~ s/\s+$//;
+for my $i (0..$#bt2_args) {  #$#bt2_args $#加数组名表示数组最后一个元素的索引
+	$bt2_args[$i]=~ s/^\s+//;  #将行首的空白去掉
+	$bt2_args[$i] =~ s/\s+$//;  #将行末的空白去掉
 }
 
 # We've handled arguments that the user has explicitly directed either to the
 # wrapper or to centrifuge, now we capture some of the centrifuge arguments that
 # ought to be handled in the wrapper
-for(my $i = 0; $i < scalar(@bt2_args); $i++) {
-	next unless defined($bt2_args[$i]);
+for(my $i = 0; $i < scalar(@bt2_args); $i++) {  #取得数组的长度
+	next unless defined($bt2_args[$i]);  #如果值未定义，则执行next
 	my $arg = $bt2_args[$i];
 	my @args = split(/=/, $arg);
 	if(scalar(@args) > 2) {
 		$args[1] = join("=", @args[1..$#args]);
 	}
 	$arg = $args[0];
-	if($arg eq "-U" || $arg eq "--unpaired") {
+	if($arg eq "-U" || $arg eq "--unpaired") {  
 		$bt2_args[$i] = undef;
 		$arg =~ s/^-U//; $arg =~ s/^--unpaired//;
 		if($arg ne "") {
 			# Argument was part of this token
 			my @args = split(/,/, $arg);
-			for my $a (@args) { push @bt2w_args, ("-U", $a); }
+			for my $a (@args) { push @bt2w_args, ("-U", $a); }  #遍历数组@args; push将一个元素（或者一列元素）加在数组的末尾
 		} else {
 			# Argument is in the next token
 			$i < scalar(@bt2_args)-1 || Fail("Argument expected in next token!\n");
@@ -151,9 +152,9 @@ for(my $i = 0; $i < scalar(@bt2_args); $i++) {
 		}
 	}
 	if($arg =~ /^--?([12])/ && $arg !~ /^--?12/) {
-		my $mate = $1;
+		my $mate = $1;  #正则表达式的捕获组1
 		$bt2_args[$i] = undef;
-		$arg =~ s/^--?[12]//;
+		$arg =~ s/^--?[12]//;  #去掉前面的参数提示
 		if($arg ne "") {
 			# Argument was part of this token
 			my @args = split(/,/, $arg);
@@ -180,7 +181,7 @@ for(my $i = 0; $i < scalar(@bt2_args); $i++) {
 		$bt2_args[$i] = undef;
 	}
 	for my $rarg ("un-conc", "al-conc", "un", "al") {
-		if($arg =~ /^--${rarg}$/ || $arg =~ /^--${rarg}-gz$/ || $arg =~ /^--${rarg}-bz2$/) {
+		if($arg =~ /^--${rarg}$/ || $arg =~ /^--${rarg}-gz$/ || $arg =~ /^--${rarg}-bz2$/) {  # 正则表达式？？
 			$bt2_args[$i] = undef;
 			if(scalar(@args) > 1 && $args[1] ne "") {
 				$read_fns{$rarg} = $args[1];
@@ -190,7 +191,7 @@ for(my $i = 0; $i < scalar(@bt2_args); $i++) {
 				$bt2_args[$i+1] = undef;
 			}
 			$read_compress{$rarg} = "";
-			$read_compress{$rarg} = "gzip"  if $arg eq "--${rarg}-gz";
+			$read_compress{$rarg} = "gzip"  if $arg eq "--${rarg}-gz";  # ${rarg} ?
 			$read_compress{$rarg} = "bzip2" if $arg eq "--${rarg}-bz2";
 			last;
 		}
@@ -218,7 +219,7 @@ if(scalar(keys %read_fns) > 0 || $no_unal) {
 		next unless defined($bt2_args[$i]);
 		my $arg = $bt2_args[$i];
 		if($arg eq "-S" || $arg eq "--output") {
-			$i < scalar(@bt2_args)-1 || Fail("-S/--output takes an argument.\n");
+			$i < scalar(@bt2_args)-1 || Fail("-S/--output takes an argument.\n");  #
 			$cap_out = $bt2_args[$i+1];
 			$bt2_args[$i] = undef;
 			$bt2_args[$i+1] = undef;
@@ -226,7 +227,7 @@ if(scalar(keys %read_fns) > 0 || $no_unal) {
 	}
 }
 my @tmp = ();
-for (@bt2_args) { push(@tmp, $_) if defined($_); }
+for (@bt2_args) { push(@tmp, $_) if defined($_); }  #$_是for循环默认的模式匹配内容
 @bt2_args = @tmp;
 
 my @unps = ();
@@ -243,14 +244,14 @@ my $readpipe = undef;
 my $log_fName = undef;
 my $help = 0;
 
-my @bt2w_args_cp = (@bt2w_args>0) ? @bt2w_args : @bt2_args;
+my @bt2w_args_cp = (@bt2w_args>0) ? @bt2w_args : @bt2_args;  # @bt2w_args>0 该数组大小是否大于0
 Getopt::Long::Configure("pass_through","no_ignore_case");
 
 my @old_ARGV = @ARGV;
 @ARGV = @bt2w_args_cp;
 
 GetOptions(
-	"1=s"                           => \@mate1s,
+	"1=s"                           => \@mate1s,  # =s表示输入参数为string
 	"2=s"                           => \@mate2s,
 	"reads|U=s"                     => \@unps,
 	"temp-directory=s"              => \$temp_dir,
@@ -258,7 +259,7 @@ GetOptions(
 	"no-named-pipes"                => \$no_pipes,
 	"ref-string|reference-string=s" => \$ref_str,
 	"keep"                          => \$keep,
-	"verbose"                       => \$verbose,
+	"verbose"                       => \$verbose,  # flag
 	"log-file=s"                    => \$log_fName,
 	"help|h"                        => \$help
 );
@@ -268,35 +269,35 @@ GetOptions(
 my $old_stderr;
 
 if ($log_fName) {
-    open($old_stderr, ">&STDERR") or Fail("Cannot dup STDERR!\n");
+    open($old_stderr, ">&STDERR") or Fail("Cannot dup STDERR!\n");  
     open(STDERR, ">", $log_fName) or Fail("Cannot redirect to log file $log_fName.\n");
 }
 
-Info("Before arg handling:\n");
+Info("Before arg handling:\n");  #
 Info("  Wrapper args:\n[ @bt2w_args ]\n");
 Info("  Binary args:\n[ @bt2_args ]\n");
 
-sub cat_file($$) {
-	my ($ifn, $ofh) = @_;
+sub cat_file($$) {  #声明函数有2个参数
+	my ($ifn, $ofh) = @_;  #@_包含传递到子程序的参数
 	my $ifh = undef;
 	if($ifn =~ /\.gz$/) {
-		open($ifh, "gzip -dc $ifn |") ||
+		open($ifh, "gzip -dc $ifn |") ||   # gzip -d解压 -c将输出写到标准输出上，并保留原有文件
 			 Fail("Could not open gzipped read file: $ifn \n");
 	} elsif($ifn =~ /\.bz2/) {
-		open($ifh, "bzip2 -dc $ifn |") ||
+		open($ifh, "bzip2 -dc $ifn |") ||  # -d执行解压缩  -c将压缩与解压缩的结果送到标准输出
 			Fail("Could not open bzip2ed read file: $ifn \n");
 	} else {
 		open($ifh, $ifn) || Fail("Could not open read file: $ifn \n");
 	}
-	while(readline $ifh) { print {$ofh} $_; }
+	while(readline $ifh) { print {$ofh} $_; }  #readline的返回值是一个list；  向$ofh声明的文件句柄中打印$_
 	close($ifh);
 }
 
 # Return non-zero if and only if the input should be wrapped (i.e. because
 # it's compressed).
-sub wrapInput($$$) {
-	my ($unps, $mate1s, $mate2s) = @_;
-	for my $fn (@$unps, @$mate1s, @$mate2s) {
+sub wrapInput($$$) {   #声明子程序有3个参数
+	my ($unps, $mate1s, $mate2s) = @_;  
+	for my $fn (@$unps, @$mate1s, @$mate2s) {  # @$ ??
 		return 1 if $fn =~ /\.gz$/ || $fn =~ /\.bz2$/;
 	}
 	return 0;
@@ -315,7 +316,7 @@ sub Error {
 }
 
 sub Fail {
-    Error(@_);
+    Error(@_);  #调用子程序Error
     die("Exiting now ...\n");    
 }
 
@@ -329,7 +330,7 @@ sub Extract_IndexName_From {
     Info("Cannot find any index option (--reference-string, --ref-string or -x) in the given command line.\n");    
 }
 
-if(wrapInput(\@unps, \@mate1s, \@mate2s)) {
+if(wrapInput(\@unps, \@mate1s, \@mate2s)) {  #调用子程序wrapInput并将三个数组的引用作为参数
 	if(scalar(@mate2s) > 0) {
 		#
 		# Wrap paired-end inputs
@@ -342,8 +343,8 @@ if(wrapInput(\@unps, \@mate1s, \@mate2s)) {
 		push @to_delete, $m1fn;
 		push @bt2_args, "-1 $m1fn";
 		# Create named pipe 1 for writing
-		if(!$no_pipes) {
-			mkfifo($m1fn, 0700) || Fail("mkfifo($m1fn) failed.\n");
+		if(!$no_pipes) {###########################
+			mkfifo($m1fn, 0700) || Fail("mkfifo($m1fn) failed.\n");  #
 		}
 		my $pid = 0;
 		$pid = fork() unless $no_pipes;
@@ -467,7 +468,8 @@ if(defined($cap_out)) {
 				if($fn1 =~ /%/) {
 					$fn1 =~ s/%/1/g; $fn2 =~ s/%/2/g;
 				} elsif($fn1 =~ /\.[^.]*$/) {
-					$fn1 =~ s/\.([^.]*)$/.1.$1/;
+					$fn1 =~ s/\.([^.]*)$/.1.
+					/;
 					$fn2 =~ s/\.([^.]*)$/.2.$1/;
 				} else {
 					$fn1 .= ".1";
