@@ -31,10 +31,10 @@ def build_args():
     Parse the wrapper arguments. Returns the options,<programm arguments> tuple.
     """
 
-    parsed_args = {}
-    to_remove = []
-    argv = sys.argv[:]
-    for i, arg in enumerate(argv):
+    parsed_args = {}  #声明字典
+    to_remove = []  #声明列表
+    argv = sys.argv[:]  #取列表全部值
+    for i, arg in enumerate(argv):  #用于遍历序列中的元素以及它们的下标,返回下标和元素值
         if arg == '--debug':
             parsed_args[arg] = ""
             to_remove.append(i)
@@ -42,7 +42,7 @@ def build_args():
             parsed_args[arg] = ""
             to_remove.append(i)
 
-    for i in reversed(to_remove):
+    for i in reversed(to_remove):  #返回序列seq的反向访问的迭代子，不改变原对象。
         del argv[i]
 
     return parsed_args, argv
@@ -60,7 +60,7 @@ def main():
     ex_path             = os.path.dirname(curr_script)
     build_bin_spec      = os.path.join(ex_path,build_bin_s)
 
-    options, argv = build_args()
+    options, argv = build_args()  #调用子程序
 
     if '--verbose' in options:
         logging.getLogger().setLevel(logging.INFO)
@@ -73,7 +73,7 @@ def main():
     argv.insert(1, 'basic-0')
     argv.insert(1, '--wrapper')
     logging.info('Command: %s %s' % (build_bin_spec, ' '.join(argv[1:])))
-    os.execv(build_bin_spec, argv)
+    os.execv(build_bin_spec, argv)  #执行一个新的程序，参数是以一个list或者是一个tuple表示的参数表
 
 if __name__ == "__main__":
     main()
