@@ -48,7 +48,7 @@ while (-f $prog && -l $prog){   # -f 为普通文件  -l 为符号链接
 ($vol,$script_path,$prog) 
                 = File::Spec->splitpath($prog);
 my $os_is_nix   = ($^O eq "linux") || ($^O eq "darwin");  # $^O 操作系统名
-my $align_bin_s = $os_is_nix ? 'centrifuge-class' : 'centrifuge-class.exe'; 
+my $align_bin_s = $os_is_nix ? 'centrifuge-class' : 'centrifuge-class.exe';   #根据操作系统选用执行程序
 my $build_bin   = $os_is_nix ? 'centrifuge-build' : 'centrifuge-build.exe';               
 my $align_prog  = File::Spec->catpath($vol,$script_path,'centrifuge-class');  # Takes volume, directory and file portions and returns an entire path. 
 my $idx_ext       = 'hc'; 
@@ -66,12 +66,12 @@ my @signame     = ();
 	}
 }
 
-(-x "$align_prog") ||  # 
+(-x "$align_prog") ||  #如果FILE存在且是可执行的则为真
 	Fail("Expected centrifuge to be in same directory with centrifuge-class:\n$script_path\n");
 
 # Get description of arguments from Centrifuge so that we can distinguish Centrifuge
 # args from wrapper args
-sub getBt2Desc($) {  # 定义子函数，$是
+sub getBt2Desc($) {  # 定义子函数，知名只有一个参数
 	my $d = shift;  #返回数组@_的第一个值
 	my $cmd = "$align_prog --wrapper basic-0 --arg-desc";
 	open(my $fh, "$cmd |") || Fail("Failed to run command '$cmd'\n");  #打开文件
@@ -273,7 +273,7 @@ if ($log_fName) {
     open(STDERR, ">", $log_fName) or Fail("Cannot redirect to log file $log_fName.\n");
 }
 
-Info("Before arg handling:\n");  #
+Info("Before arg handling:\n");  #调用子程序Info
 Info("  Wrapper args:\n[ @bt2w_args ]\n");
 Info("  Binary args:\n[ @bt2_args ]\n");
 
@@ -343,20 +343,20 @@ if(wrapInput(\@unps, \@mate1s, \@mate2s)) {  #调用子程序wrapInput并将三
 		push @to_delete, $m1fn;
 		push @bt2_args, "-1 $m1fn";
 		# Create named pipe 1 for writing
-		if(!$no_pipes) {###########################
-			mkfifo($m1fn, 0700) || Fail("mkfifo($m1fn) failed.\n");  #
+		if(!$no_pipes) {
+			mkfifo($m1fn, 0700) || Fail("mkfifo($m1fn) failed.\n");  #mkfifo是创建一个FIFO special files
 		}
 		my $pid = 0;
-		$pid = fork() unless $no_pipes;
+		$pid = fork() unless $no_pipes;  #fork()用于控制多个进程
 		if($pid == 0) {
 			# Open named pipe 1 for writing
 			open(my $ofh, ">$m1fn") || Fail("Can't open '$m1fn' for writing\n");
-			for my $ifn (@mate1s) { cat_file($ifn, $ofh); }
+			for my $ifn (@mate1s) { cat_file($ifn, $ofh); }  #调用子程序cat_file
 			close($ofh);
 			exit 0 unless $no_pipes;
 		}
 		# Make a named pipe for delivering mate #2s
-		my $m2fn = "$temp_dir/$$.inpipe2";
+		my $m2fn = "$temp_dir/$$.inpipe2";  # $$运行当前Perl脚本程序的进程号。.inpipe2应该是文件后缀
 		push @to_delete, $m2fn;
 		push @bt2_args, "-2 $m2fn";
 		# Create named pipe 2 for writing
@@ -413,7 +413,7 @@ if(defined($ref_str)) {
 	print {$ofh} ">1\n$ref_str\n";
 	close($ofh);
 	push @to_delete, $ofn;
-	system("$build_bin $ofn $ofn") == 0 ||
+	system("$build_bin $ofn $ofn") == 0 ||  #system()系统调用 linux下调用centrifuge-build
 		Fail("centrifuge-build returned non-0 exit level.\n");
 	push @bt2_args, ("--index", "$ofn");
 	push @to_delete, ("$ofn.1.".$idx_ext, "$ofn.2.".$idx_ext, 
@@ -426,12 +426,12 @@ if(defined($ref_str)) {
 Info("After arg handling:\n");
 Info("  Binary args:\n[ @bt2_args ]\n");
 
-my $index_name = Extract_IndexName_From(@bt2_args);
+my $index_name = Extract_IndexName_From(@bt2_args);  #调用子程序Extract_IndexName_From
 
 my $debug_str = ($debug ? "-debug" : "");
 
 # Construct command invoking centrifuge-class
-my $cmd = "$align_prog$debug_str --wrapper basic-0 ".join(" ", @bt2_args);
+my $cmd = "$align_prog$debug_str --wrapper basic-0 ".join(" ", @bt2_args);  #
 
 # Possibly add read input on an anonymous pipe
 $cmd = "$readpipe $cmd" if defined($readpipe);
@@ -452,7 +452,7 @@ if(defined($cap_out)) {
 	for my $i ("al", "un", "al-conc", "un-conc") {
 		if(defined($read_fns{$i})) {
             my ($vol, $base_spec_dir, $base_fname) = File::Spec->splitpath($read_fns{$i});
-            if (-d $read_fns{$i}) {
+            if (-d $read_fns{$i}) {  # -d 如果FILE存在且是一个目录则为真
                 $base_spec_dir = $read_fns{$i};
                 $base_fname = undef;
             }
@@ -468,8 +468,7 @@ if(defined($cap_out)) {
 				if($fn1 =~ /%/) {
 					$fn1 =~ s/%/1/g; $fn2 =~ s/%/2/g;
 				} elsif($fn1 =~ /\.[^.]*$/) {
-					$fn1 =~ s/\.([^.]*)$/.1.
-					/;
+					$fn1 =~ s/\.([^.]*)$/.1.$1/;
 					$fn2 =~ s/\.([^.]*)$/.2.$1/;
 				} else {
 					$fn1 .= ".1";
@@ -637,7 +636,7 @@ if(defined($cap_out)) {
 	for my $k (@fhs_to_close) { close($k); }
 	close($ofh);
 	close(BT);
-	$ret = $?;
+	$ret = $?;  # $?返回上一个外部命令的状态
 } else {
 	$ret = system($cmd);
 }
