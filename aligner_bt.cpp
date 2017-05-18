@@ -22,9 +22,9 @@
 
 using namespace std;
 
-#define CHECK_ROW_COL(rowc, colc) \
+#define CHECK_ROW_COL(rowc, colc) \       //这是多行宏  用于预编译时的替换
 	if(rowc >= 0 && colc >= 0) { \
-		if(!sawcell_[colc].insert(rowc)) { \
+		if(!sawcell_[colc].insert(rowc)) { \    //
 			/* was already in there */ \
 			abort = true; \
 			return; \
