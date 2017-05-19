@@ -545,8 +545,8 @@ class BtBranchTracer {
 
 public:
 
-	explicit BtBranchTracer() :
-		prob_(), bs_(), seenPaths_(DP_CAT), sawcell_(DP_CAT), doTri_() { }
+	explicit BtBranchTracer() :    //抑制隐式替换
+		prob_(), bs_(), seenPaths_(DP_CAT), sawcell_(DP_CAT), doTri_() { }  // 初始化成员列表
 
 	/**
 	 * Add a branch to the queue.
