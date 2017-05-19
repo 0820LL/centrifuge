@@ -29,20 +29,20 @@ using namespace std;
 			abort = true; \
 			return; \
 		} \
-		assert(local || prob_.cper_->debugCell(rowc, colc, hefc)); \
+		assert(local || prob_.cper_->debugCell(rowc, colc, hefc)); \   //成员访问运算符 用于引用类、结构和共用体的成员。
 	}
 
 /**
  * Fill in a triangle of the DP table and backtrace from the given cell to
  * a cell in the previous checkpoint, or to the terminal cell.
  */
-void BtBranchTracer::triangleFill(
-	int64_t rw,          // row of cell to backtrace from
+void BtBranchTracer::triangleFill(  // :: 域操作符 用于在类外定义成员函数
+	int64_t rw,          // row of cell to backtrace from   //
 	int64_t cl,          // column of cell to backtrace from
 	int hef,             // cell to backtrace from is H (0), E (1), or F (2)
 	TAlScore targ,       // score of cell to backtrace from
 	TAlScore targ_final, // score of alignment we're looking for
-	RandomSource& rnd,   // pseudo-random generator
+	RandomSource& rnd,   // pseudo-random generator  //引用
 	int64_t& row_new,    // out: row we ended up in after backtrace
 	int64_t& col_new,    // out: column we ended up in after backtrace
 	int& hef_new,        // out: H/E/F after backtrace
@@ -65,7 +65,7 @@ void BtBranchTracer::triangleFill(
 	assert_leq(col, (int64_t)prob_.cper_->hicol());
 	assert_geq(col, (int64_t)prob_.cper_->locol());
 	assert_geq(prob_.cper_->per(), 2);
-	size_t mod = (row + col) & prob_.cper_->lomask();
+	size_t mod = (row + col) & prob_.cper_->lomask();  // 位运算（整型） 或者 逻辑运算（布尔型）
 	assert_lt(mod, prob_.cper_->per());
 	// Allocate room for diags
 	size_t depth = mod+1;
@@ -77,19 +77,19 @@ void BtBranchTracer::triangleFill(
 		tri_[i].resize(breadth - i);
 	}
 	bool upperleft = false;
-	size_t off = (row + col) >> prob_.cper_->perpow2();
+	size_t off = (row + col) >> prob_.cper_->perpow2();  //二进制右移运算符。左操作数的值向右移动右操作数指定的位数。
 	if(off == 0) {
 		upperleft = true;
 	} else {
 		off--;
 	}
-	const TAlScore sc_rdo = prob_.sc_->readGapOpen();
+	const TAlScore sc_rdo = prob_.sc_->readGapOpen();  //常类型的变量或对象的值是不能被更新的
 	const TAlScore sc_rde = prob_.sc_->readGapExtend();
 	const TAlScore sc_rfo = prob_.sc_->refGapOpen();
 	const TAlScore sc_rfe = prob_.sc_->refGapExtend();
 	const bool local = !prob_.sc_->monotone;
 	int64_t row_lo = row - (int64_t)mod;
-	const CpQuad *prev2 = NULL, *prev1 = NULL;
+	const CpQuad *prev2 = NULL, *prev1 = NULL;  //CpQuad是自定义的数据类型
 	if(!upperleft) {
 		// Read-only pointer to cells in diagonal -2.  Start one row above the
 		// target row.
@@ -151,14 +151,14 @@ void BtBranchTracer::triangleFill(
 				int16_t sc_e_lf = MIN_I16;
 				if(allowGaps) {
 					if(rowc > 0) {
-						assert(local || prev1[j+0].sc[2] < 0);
+						assert(local || prev1[j+0].sc[2] < 0);  //若条件返回错误，则终止程序执行
 						if(prev1[j+0].sc[0] > MIN_I16) {
 							sc_h_up = prev1[j+0].sc[0] - sc_rfo;
 							if(local) sc_h_up = max<int16_t>(sc_h_up, 0);
 						}
 						if(prev1[j+0].sc[2] > MIN_I16) {
 							sc_f_up = prev1[j+0].sc[2] - sc_rfe;
-							if(local) sc_f_up = max<int16_t>(sc_f_up, 0);
+							if(local) sc_f_up = max<int16_t>(sc_f_up, 0);  //
 						}
 #ifndef NDEBUG
 						TAlScore hup = prev1[j+0].sc[0];
@@ -223,7 +223,7 @@ void BtBranchTracer::triangleFill(
 				}
 				if(colc > 0 && sc_h_lf >= sc_best && sc_h_lf > MIN_I64) {
 					if(sc_h_lf > sc_best) mask = 0;
-					mask |= 2;
+					mask |= 2;  // 二进制位运算  二者取或
 					sc_best = sc_h_lf;
 				}
 				if(colc > 0 && sc_e_lf >= sc_best && sc_e_lf > MIN_I64) {
@@ -273,7 +273,7 @@ void BtBranchTracer::triangleFill(
 				}
 				if(sc_f_best > sc_best) {
 					sc_best = sc_f_best;
-					mask &= ~127; // don't go horizontal or diagonal
+					mask &= ~127; // don't go horizontal or diagonal  二进制补码运算符，具有翻转位效果。
 				}
 				// Install results in cur
 				assert(!prob_.sc_->monotone || sc_best <= 0);
@@ -331,8 +331,8 @@ void BtBranchTracer::triangleFill(
 	int hefc = hef;
 	if(bs_.empty()) {
 		// Start an initial branch
-		CHECK_ROW_COL(rowc, colc);
-		curid = bs_.alloc();
+		CHECK_ROW_COL(rowc, colc);  //调用宏
+		curid = bs_.alloc();  //
 		assert_eq(0, curid);
 		Edit e;
 		bs_[curid].init(
@@ -350,12 +350,12 @@ void BtBranchTracer::triangleFill(
 	} else {
 		curid = bs_.size()-1;
 	}
-	size_t idx_orig = (row + col) >> prob_.cper_->perpow2();
+	size_t idx_orig = (row + col) >> prob_.cper_->perpow2();  //二进制右移运算符
 	while(true) {
 		// What depth are we?
-		size_t mod = (rowc + colc) & prob_.cper_->lomask();
+		size_t mod = (rowc + colc) & prob_.cper_->lomask();  //二进制 AND 运算符
 		assert_lt(mod, prob_.cper_->per());
-		CpQuad * cur = tri_[mod].ptr();
+		CpQuad * cur = tri_[mod].ptr();  //是指针么？？
 		int64_t row_off = rowc - row_lo - mod;
 		assert(!local || cur[row_off].sc[0] > 0);
 		assert_geq(row_off, 0);
@@ -365,7 +365,7 @@ void BtBranchTracer::triangleFill(
 		// Select what type of move to make, which depends on whether we're
 		// currently in H, E, F:
 		if(hefc == 0) {
-			if(       (mask & 1) != 0) {
+			if(       (mask & 1) != 0) {  //二进制 AND 运算符
 				// diagonal
 				sel = 0;
 			} else if((mask & 8) != 0) {
@@ -411,17 +411,17 @@ void BtBranchTracer::triangleFill(
 			assert_geq(rowc, 0);
 			assert_geq(colc, 0);
 			TAlScore scd = prob_.sc_->score(qc, rc, qq - 33);
-			if((rc & (1 << qc)) == 0) {
+			if((rc & (1 << qc)) == 0) {  //
 				// Mismatch
 				size_t id = curid;
 				// Check if the previous branch was the initial (bottommost)
 				// branch with no matches.  If so, the mismatch should be added
 				// to the initial branch, instead of starting a new branch.
-				bool empty = (bs_[curid].len_ == 0 && curid == 0);
+				bool empty = (bs_[curid].len_ == 0 && curid == 0);  //布尔型
 				if(!empty) {
 					id = bs_.alloc();
 				}
-				Edit e((int)rowc, mask2dna[rc], "ACGTN"[qc], EDIT_TYPE_MM);
+				Edit e((int)rowc, mask2dna[rc], "ACGTN"[qc], EDIT_TYPE_MM);  //(int)强制转换成int
 				assert_lt(scd, 0);
 				TAlScore score_en = bs_[curid].score_st_ + scd;
 				bs_[id].init(
@@ -441,7 +441,7 @@ void BtBranchTracer::triangleFill(
 				// Match
 				bs_[curid].score_st_ += prob_.sc_->match();
 				bs_[curid].len_++;
-				assert_leq((int64_t)bs_[curid].len_, bs_[curid].row_ + 1);
+				assert_leq((int64_t)bs_[curid].len_, bs_[curid].row_ + 1);  //强制转化成int64_t
 			}
 			rowc--;
 			colc--;
@@ -507,12 +507,12 @@ void BtBranchTracer::triangleFill(
 				hefc = 2;
 			}
 		}
-		CHECK_ROW_COL(rowc, colc);
-		size_t mod_new = (rowc + colc) & prob_.cper_->lomask();
-		size_t idx = (rowc + colc) >> prob_.cper_->perpow2();
+		CHECK_ROW_COL(rowc, colc);  //宏替换
+		size_t mod_new = (rowc + colc) & prob_.cper_->lomask();  //二进制 AND 运算符
+		size_t idx = (rowc + colc) >> prob_.cper_->perpow2();  //二进制右移运算符
 		assert_lt(mod_new, prob_.cper_->per());
 		int64_t row_off_new = rowc - row_lo - mod_new;
-		CpQuad * cur_new = NULL;
+		CpQuad * cur_new = NULL;  //
 		if(colc >= 0 && rowc >= 0 && idx == idx_orig) {
 			cur_new = tri_[mod_new].ptr();
 		}
@@ -566,7 +566,7 @@ void BtBranchTracer::triangleFill(
 	assert(false);
 }
 
-#ifndef NDEBUG
+#ifndef NDEBUG    //条件编译
 #define DEBUG_CHECK(ss, row, col, hef) { \
 	if(prob_.cper_->debug() && row >= 0 && col >= 0) { \
 		TAlScore s = ss; \
@@ -586,13 +586,13 @@ void BtBranchTracer::triangleFill(
  * Fill in a square of the DP table and backtrace from the given cell to
  * a cell in the previous checkpoint, or to the terminal cell.
  */
-void BtBranchTracer::squareFill(
+void BtBranchTracer::squareFill(  //在类外定义函数
 	int64_t rw,          // row of cell to backtrace from
 	int64_t cl,          // column of cell to backtrace from
 	int hef,             // cell to backtrace from is H (0), E (1), or F (2)
 	TAlScore targ,       // score of cell to backtrace from
 	TAlScore targ_final, // score of alignment we're looking for
-	RandomSource& rnd,   // pseudo-random generator
+	RandomSource& rnd,   // pseudo-random generator  
 	int64_t& row_new,    // out: row we ended up in after backtrace
 	int64_t& col_new,    // out: column we ended up in after backtrace
 	int& hef_new,        // out: H/E/F after backtrace
@@ -603,12 +603,12 @@ void BtBranchTracer::squareFill(
 	assert_geq(rw, 0);
 	assert_geq(cl, 0);
 	assert_range(0, 2, hef);
-	assert_lt(rw, (int64_t)prob_.qrylen_);
+	assert_lt(rw, (int64_t)prob_.qrylen_);  //强制转换
 	assert_lt(cl, (int64_t)prob_.reflen_);
 	assert(prob_.usecp_ && prob_.fill_);
 	const bool is8_ = prob_.cper_->is8_;
 	int64_t row = rw, col = cl;
-	assert_leq(prob_.reflen_, (TRefOff)sawcell_.size());
+	assert_leq(prob_.reflen_, (TRefOff)sawcell_.size());  //强制转换
 	assert_leq(col, (int64_t)prob_.cper_->hicol());
 	assert_geq(col, (int64_t)prob_.cper_->locol());
 	assert_geq(prob_.cper_->per(), 2);
@@ -625,7 +625,7 @@ void BtBranchTracer::squareFill(
 	const TAlScore sc_rfo = prob_.sc_->refGapOpen();
 	const TAlScore sc_rfe = prob_.sc_->refGapExtend();
 	const bool local = !prob_.sc_->monotone;
-	const CpQuad *qup = NULL;
+	const CpQuad *qup = NULL;  //指针
 	const __m128i *qlf = NULL;
 	size_t per = prob_.cper_->per_;
 	ASSERT_ONLY(size_t nrow = prob_.cper_->nrow());
@@ -639,7 +639,7 @@ void BtBranchTracer::squareFill(
 	if(!left) {
 		// Set up the column pointers to point to the first __m128i word in the
 		// relevant column
-		size_t off = (niter << 2) * (xdiv-1);
+		size_t off = (niter << 2) * (xdiv-1);  //二进制左移运算符
 		qlf = prob_.cper_->qcols_.ptr() + off;
 	}
 	size_t xedge = xdiv * per; // absolute offset of leftmost cell in square
@@ -684,7 +684,7 @@ void BtBranchTracer::squareFill(
 			} else if(i == 0 && j == 0) {
 				// Otherwise, if I'm in the upper-left square corner, I can get
 				// it from the checkpoint 
-				sc_h_dg = qup[-1].sc[0];
+				sc_h_dg = qup[-1].sc[0];  //数组索引值为负？
 			} else if(j == 0) {
 				// Otherwise, if I'm in the leftmost cell of this row, I can
 				// get it from sc_h_lf in first column of previous row
@@ -700,26 +700,26 @@ void BtBranchTracer::squareFill(
 			if(j == 0 && xi > 0) {
 				// Get values for left neighbors from the checkpoint
 				if(is8_) {
-					size_t vecoff = (m128mod << 6) + m128div;
-					sc_e_lf = ((uint8_t*)(qlf + 0))[vecoff];
+					size_t vecoff = (m128mod << 6) + m128div;  //二进制左移运算符
+					sc_e_lf = ((uint8_t*)(qlf + 0))[vecoff]; 
 					sc_h_lf = ((uint8_t*)(qlf + 2))[vecoff];
 					if(local) {
 						// No adjustment
 					} else {
 						if(sc_h_lf == 0) sc_h_lf = MIN_I16;
-						else sc_h_lf -= 0xff;
+						else sc_h_lf -= 0xff;  // 十六进制 255
 						if(sc_e_lf == 0) sc_e_lf = MIN_I16;
 						else sc_e_lf -= 0xff;
 					}
 				} else {
-					size_t vecoff = (m128mod << 5) + m128div;
+					size_t vecoff = (m128mod << 5) + m128div; //二进制左移运算符
 					sc_e_lf = ((int16_t*)(qlf + 0))[vecoff];
 					sc_h_lf = ((int16_t*)(qlf + 2))[vecoff];
 					if(local) {
-						sc_h_lf += 0x8000; assert_geq(sc_h_lf, 0);
+						sc_h_lf += 0x8000; assert_geq(sc_h_lf, 0); //十六进制 32768
 						sc_e_lf += 0x8000; assert_geq(sc_e_lf, 0);
 					} else {
-						if(sc_h_lf != MIN_I16) sc_h_lf -= 0x7fff;
+						if(sc_h_lf != MIN_I16) sc_h_lf -= 0x7fff;  //十六进制 32767
 						if(sc_e_lf != MIN_I16) sc_e_lf -= 0x7fff;
 					}
 				}
