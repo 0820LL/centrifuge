@@ -1134,7 +1134,7 @@ void BtBranchTracer::squareFill(  //在类外定义函数
  * test is the current cell (row, col).
  */
 void BtBranch::init(   //范围解析运算符
-	const BtBranchProblem& prob,  //
+	const BtBranchProblem& prob,  //重载？？？
 	size_t parentId,
 	TAlScore penalty,
 	TAlScore score_en,
