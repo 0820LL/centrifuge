@@ -735,7 +735,7 @@ void BtBranchTracer::squareFill(  //在类外定义函数
 					if(sc_h_lf_c != MIN_I16) sc_h_lf_c -= sc_rdo;
 					if(sc_e_lf_c != MIN_I16) sc_e_lf_c -= sc_rde;
 					assert_leq(sc_h_lf_c, prob_.cper_->perf_);
-					assert_leq(sc_e_lf_c, prob_.cper_->perf_);
+					assert_leq(sc_e_lf_c, prob_.cper_->perf_); //-> 指向结构体成员运算符
 				} else if(xi > 0) {
 					// Get values for left neighbors from the previous iteration
 					if(sc_h_lf_last != MIN_I16) {
@@ -758,7 +758,7 @@ void BtBranchTracer::squareFill(  //在类外定义函数
 					}
 					if(qup[j].sc[2] > MIN_I16) {
 						DEBUG_CHECK(qup[j].sc[2], yi-1, xi, 1);
-						sc_f_up = qup[j].sc[2];
+						sc_f_up = qup[j].sc[2];  //结构体成员操作符
 						sc_f_up_c = sc_f_up - sc_rfe;
 					}
 				}
@@ -820,7 +820,7 @@ void BtBranchTracer::squareFill(  //在类外定义函数
 			}
 			if(sc_e_best > sc_best) {
 				sc_best = sc_e_best;
-				mask &= ~31; // don't go diagonal
+				mask &= ~31; // don't go diagonal  按位取非
 			}
 			// Calculate best way into F cell
 			int16_t sc_f_best = sc_h_up_c;
@@ -900,14 +900,14 @@ void BtBranchTracer::squareFill(  //在类外定义函数
 	while(true) {
 		// What depth are we?
 		assert_eq(ymodTimesNcol, ymod * sq_ncol);
-		CpQuad * cur = sq_.ptr() + ymodTimesNcol + xmod;
+		CpQuad * cur = sq_.ptr() + ymodTimesNcol + xmod;  //
 		int mask = cur->sc[3];
 		assert_gt(mask, 0);
 		int sel = -1;
 		// Select what type of move to make, which depends on whether we're
 		// currently in H, E, F:
 		if(hefc == 0) {
-			if(       (mask & 1) != 0) {
+			if(       (mask & 1) != 0) {  //位与运算
 				// diagonal
 				sel = 0;
 			} else if((mask & 8) != 0) {
@@ -1133,8 +1133,8 @@ void BtBranchTracer::squareFill(  //在类外定义函数
  * cell involved in the gap.  len_ is initially set to 0, and the next cell we
  * test is the current cell (row, col).
  */
-void BtBranch::init(
-	const BtBranchProblem& prob,
+void BtBranch::init(   //范围解析运算符
+	const BtBranchProblem& prob,  //
 	size_t parentId,
 	TAlScore penalty,
 	TAlScore score_en,
