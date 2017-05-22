@@ -1134,7 +1134,7 @@ void BtBranchTracer::squareFill(  //在类外定义函数
  * test is the current cell (row, col).
  */
 void BtBranch::init(   //范围解析运算符
-	const BtBranchProblem& prob,  //重载？？？
+	const BtBranchProblem& prob,  //？？？
 	size_t parentId,
 	TAlScore penalty,
 	TAlScore score_en,
@@ -1154,7 +1154,7 @@ void BtBranch::init(   //范围解析运算符
 	e_ = e;
 	root_ = root;
 	assert(!root_ || parentId == 0);
-	assert_lt(row, (int64_t)prob.qrylen_);
+	assert_lt(row, (int64_t)prob.qrylen_);  //类型强制转换成int64_t
 	assert_lt(col, (int64_t)prob.reflen_);
 	// First match to check is diagonally above and to the left of the cell
 	// where the edit occurs
@@ -1174,7 +1174,7 @@ void BtBranch::init(   //范围解析运算符
 			int rfm = prob.ref_[colc];
 			assert_range(0, 16, rfm);
 			int rdc = prob.qry_[rowc];
-			bool matches = (rfm & (1 << rdc)) != 0;
+			bool matches = (rfm & (1 << rdc)) != 0;  //左位移运算符
 			if(!matches) {
 				// What's the mismatch penalty?
 				break;
@@ -1361,7 +1361,7 @@ void BtBranchTracer::flushUnsorted() {
 		assert_leq(bs_[unsorted_[i].second].score_st_, bs_[unsorted_[i-1].second].score_st_);
 	}
 #endif
-	EList<size_t> *src2 = sortedSel_ ? &sorted1_ : &sorted2_;
+	EList<size_t> *src2 = sortedSel_ ? &sorted1_ : &sorted2_; //定义指针
 	EList<size_t> *dest = sortedSel_ ? &sorted2_ : &sorted1_;
 	// Merge src1 and src2 into dest
 	dest->clear();
@@ -1375,7 +1375,7 @@ void BtBranchTracer::flushUnsorted() {
 			take1 = true;
 		} else {
 			assert_neq(unsorted_[cur1].second, (*src2)[cur2]);
-			take1 = bs_[unsorted_[cur1].second] < bs_[(*src2)[cur2]];
+			take1 = bs_[unsorted_[cur1].second] < bs_[(*src2)[cur2]];  //返回布尔值
 		}
 		if(take1) {
 			dest->push_back(unsorted_[cur1++].second); // Take from list 1
@@ -1385,7 +1385,7 @@ void BtBranchTracer::flushUnsorted() {
 	}
 	assert_eq(cur1, unsorted_.size());
 	assert_eq(cur2, src2->size());
-	sortedSel_ = !sortedSel_;
+	sortedSel_ = !sortedSel_;  //
 	cur_ = 0;
 	unsorted_.clear();
 }
@@ -1395,7 +1395,7 @@ void BtBranchTracer::flushUnsorted() {
  * if they, for instance, overlap a previous solution, have too many Ns,
  * fail to overlap a core diagonal, etc.
  */
-bool BtBranchTracer::trySolutions(
+bool BtBranchTracer::trySolutions(   //域操作符
 	bool lookForOlap,
 	SwResult& res,
 	size_t& off,
@@ -1485,7 +1485,7 @@ int BtBranchTracer::trySolution(
 		assert_lt(diag, seenPaths_.size());
 		// Does it overlap a core diagonal?
 		if(diagi >= 0) {
-			size_t diag = (size_t)diagi;
+			size_t diag = (size_t)diagi;  //强制转换成size_t类型
 			if(diag >= prob_.rect_->corel &&
 			   diag <= prob_.rect_->corer)
 			{
@@ -1499,7 +1499,7 @@ int BtBranchTracer::trySolution(
 				if(prev != NULL && prev->len_ > 0) {
 					// If there's a gap at the base of a non-0 length branch, the
 					// gap will appear to overlap the branch if we give it length 1.
-					newhi = newlo = 0;
+					newhi = newlo = 0;  //连续赋值
 				} else {
 					// Read or ref gap with no matches coming off of it
 					newlo = row;
