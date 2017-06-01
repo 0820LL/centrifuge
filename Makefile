@@ -21,27 +21,27 @@
 #
 
 INC =
-GCC_PREFIX = $(shell dirname `which gcc`)
+GCC_PREFIX = $(shell dirname `which gcc`)   #获得 gcc 的路径部分； shell 函数把执行操作系统命令后的输出作为函数返回
 GCC_SUFFIX =
 CC = $(GCC_PREFIX)/gcc$(GCC_SUFFIX)
 CPP = $(GCC_PREFIX)/g++$(GCC_SUFFIX)
 CXX = $(CPP) #-fdiagnostics-color=always
-HEADERS = $(wildcard *.h)
+HEADERS = $(wildcard *.h)    # 获取工作目录下的所有的头文件
 BOWTIE_MM = 1
 BOWTIE_SHARED_MEM = 0
 
-# Detect Cygwin or MinGW
+# Detect Cygwin or MinGW  Cygwin是一个在windows平台上运行的类UNIX模拟环境  MinGW，是Minimalist GNUfor Windows的缩写
 WINDOWS = 0
 CYGWIN = 0
 MINGW = 0
-ifneq (,$(findstring CYGWIN,$(shell uname)))
+ifneq (,$(findstring CYGWIN,$(shell uname)))  #如果findstring返回值不是空 empty，则执行。 findstring是查找字符串函数。
 	WINDOWS = 1 
 	CYGWIN = 1
 	# POSIX memory-mapped files not currently supported on Windows
 	BOWTIE_MM = 0
 	BOWTIE_SHARED_MEM = 0
 else
-	ifneq (,$(findstring MINGW,$(shell uname)))
+	ifneq (,$(findstring MINGW,$(shell uname)))  #如果findstring返回值不是空 empty，则执行。 uname可显示电脑以及操作系统的相关信息
 		WINDOWS = 1
 		MINGW = 1
 		# POSIX memory-mapped files not currently supported on Windows
@@ -50,14 +50,15 @@ else
 	endif
 endif
 
+
 MACOS = 0
 ifneq (,$(findstring Darwin,$(shell uname)))
 	MACOS = 1
 endif
 
-POPCNT_CAPABILITY ?= 1
-ifeq (1, $(POPCNT_CAPABILITY))
-    EXTRA_FLAGS += -DPOPCNT_CAPABILITY
+POPCNT_CAPABILITY ?= 1  #如果POPCNT_CAPABILITY没有被定义过，则赋值为1
+ifeq (1, $(POPCNT_CAPABILITY))   #
+    EXTRA_FLAGS += -DPOPCNT_CAPABILITY   #给变量追加值
     INC += -I third_party
 endif
 
@@ -98,7 +99,7 @@ SERACH_INC =
 ifeq (1,$(USE_SRA))
 	SRA_DEF = -DUSE_SRA
 	SRA_LIB = -lncbi-ngs-c++-static -lngs-c++-static -lncbi-vdb-static -ldl
-	SEARCH_INC += -I$(NCBI_NGS_DIR)/include -I$(NCBI_VDB_DIR)/include
+	SEARCH_INC += -I$(NCBI_NGS_DIR)/include -I$(NCBI_VDB_DIR)/include   #给变量追加值
 	SEARCH_LIBS += -L$(NCBI_NGS_DIR)/lib64 -L$(NCBI_VDB_DIR)/lib64
 endif
 
@@ -135,14 +136,14 @@ CENTRIFUGE_COMPRESS_CPPS_MAIN = $(BUILD_CPPS) \
 
 CENTRIFUGE_REPORT_CPPS_MAIN=$(BUILD_CPPS)
 
-SEARCH_FRAGMENTS = $(wildcard search_*_phase*.c)
-VERSION = $(shell cat VERSION)
+SEARCH_FRAGMENTS = $(wildcard search_*_phase*.c)  #
+VERSION = $(shell cat VERSION)  #执行操作系统命令
 GIT_VERSION = $(VERSION)
 #GIT_VERSION = $(shell command -v git 2>&1 > /dev/null && git describe --long --tags --dirty --always --abbrev=10 || cat VERSION)
 
 # Convert BITS=?? to a -m flag
 BITS=32
-ifeq (x86_64,$(shell uname -m))
+ifeq (x86_64,$(shell uname -m))  #判断操作系统是不是64位
 BITS=64
 endif
 # msys will always be 32 bit so look at the cpu arch instead.
@@ -191,7 +192,7 @@ CENTRIFUGE_SCRIPT_LIST = 	centrifuge \
 	centrifuge-build \
 	centrifuge-inspect \
 	centrifuge-download \
-	$(wildcard centrifuge-*.pl)
+	$(wildcard centrifuge-*.pl)    #工作目录下所有的centrifuge-*.pl文件
 
 
 GENERAL_LIST = $(wildcard scripts/*.sh) \
@@ -215,13 +216,13 @@ GENERAL_LIST = $(wildcard scripts/*.sh) \
 	TUTORIAL \
 	VERSION
 
-ifeq (1,$(WINDOWS))
+ifeq (1,$(WINDOWS)) #如果是windows系统
 	CENTRIFUGE_BIN_LIST := $(CENTRIFUGE_BIN_LIST) centrifuge.bat centrifuge-build.bat centrifuge-inspect.bat 
 endif
 
-# This is helpful on Windows under MinGW/MSYS, where Make might go for
-# the Windows FIND tool instead.
-FIND=$(shell which find)
+# This is helpful on Windows under MinGW/MSYS, where Make might go for the Windows FIND tool instead.
+
+FIND=$(shell which find)  #find的路径
 
 SRC_PKG_LIST = $(wildcard *.h) \
 	$(wildcard *.hh) \
@@ -235,7 +236,7 @@ SRC_PKG_LIST = $(wildcard *.h) \
 
 BIN_PKG_LIST = $(GENERAL_LIST)
 
-.PHONY: all allall both both-debug
+.PHONY: all allall both both-debug   #定义4个伪目标
 
 all: $(CENTRIFUGE_BIN_LIST)
 
@@ -247,9 +248,9 @@ both-debug: centrifuge-class-debug centrifuge-build-bin-debug
 
 DEFS=-fno-strict-aliasing \
      -DCENTRIFUGE_VERSION="\"$(GIT_VERSION)\"" \
-     -DBUILD_HOST="\"`hostname`\"" \
-     -DBUILD_TIME="\"`date`\"" \
-     -DCOMPILER_VERSION="\"`$(CXX) -v 2>&1 | tail -1`\"" \
+     -DBUILD_HOST="\"`hostname`\"" \     #执行系统命令hostname
+     -DBUILD_TIME="\"`date`\"" \    #执行系统命令date
+     -DCOMPILER_VERSION="\"`$(CXX) -v 2>&1 | tail -1`\"" \    #执行系统命令
      $(FILE_FLAGS) \
 	 $(CFLAGS) \
      $(PREF_DEF) \
@@ -264,7 +265,7 @@ centrifuge-class: centrifuge.cpp $(SEARCH_CPPS) $(SHARED_CPPS) $(HEADERS) $(SEAR
 	$(CXX) $(RELEASE_FLAGS) $(RELEASE_DEFS) $(EXTRA_FLAGS) \
 	$(DEFS) $(SRA_DEF) -DCENTRIFUGE -DBOWTIE2 -DBOWTIE_64BIT_INDEX $(NOASSERT_FLAGS) -Wall \
 	$(INC) $(SEARCH_INC) \
-	-o $@ $< \
+	-o $@ $< \  # $@表示规则中的目标文件集  $<表示依赖目标中的第一个目标名字
 	$(SHARED_CPPS) $(CENTRIFUGE_CPPS_MAIN) \
 	$(LIBS) $(SRA_LIB) $(SEARCH_LIBS)
 
@@ -354,7 +355,7 @@ centrifuge-inspect-bin-debug: centrifuge_inspect.cpp $(HEADERS) $(SHARED_CPPS)
 	$(LIBS) $(INSPECT_LIBS)
 
 
-centrifuge: ;
+centrifuge: ;   #
 
 centrifuge.bat:
 	echo "@echo off" > centrifuge.bat
@@ -369,7 +370,7 @@ centrifuge-inspect.bat:
 	echo "python %~dp0/centrifuge-inspect %*" >> centrifuge-inspect.bat
 
 
-.PHONY: centrifuge-src
+.PHONY: centrifuge-src    #定义伪目标
 centrifuge-src: $(SRC_PKG_LIST)
 	mkdir .src.tmp
 	mkdir .src.tmp/centrifuge-$(VERSION)
@@ -401,7 +402,7 @@ doc: doc/manual.inc.html MANUAL
 
 doc/manual.inc.html: MANUAL.markdown
 	pandoc -T "Centrifuge Manual" -o $@ \
-	 --from markdown --to HTML --toc $^
+	 --from markdown --to HTML --toc $^         #所有的依赖目标的集合，去掉重复的依赖目标，以空格分隔。
 	perl -i -ne \
 	 '$$w=0 if m|^</body>|;print if $$w;$$w=1 if m|^<body>|;' $@
 
@@ -410,11 +411,11 @@ MANUAL: MANUAL.markdown
 
 prefix=/usr/local
 
-.PHONY: install
+.PHONY: install  #定义伪目标
 install: all
 	mkdir -p $(prefix)/bin
 	mkdir -p $(prefix)/share/centrifuge/indices
-	install -m 0644 indices/Makefile $(prefix)/share/centrifuge/indices
+	install -m 0644 indices/Makefile $(prefix)/share/centrifuge/indices  #install命令和cp命令类似，都可以将文件/目录拷贝到指定的地点。但是，install允许你控制目标文件的属性。install通常用于程序的makefile，使用它来将程序拷贝到目标（安装）目录。
 	install -d -m 0755 $(prefix)/share/centrifuge/doc
 	install -m 0644 doc/* $(prefix)/share/centrifuge/doc
 	for file in $(CENTRIFUGE_BIN_LIST) $(CENTRIFUGE_SCRIPT_LIST); do \
@@ -437,4 +438,4 @@ clean:
 	rm -f core.* .tmp.head
 	rm -rf *.dSYM
 push-doc: doc/manual.inc.html
-	scp doc/*.*html igm1:/data1/igm3/www/ccb.jhu.edu/html/software/centrifuge/
+	scp doc/*.*html igm1:/data1/igm3/www/ccb.jhu.edu/html/software/centrifuge/ # secure copy的缩写, scp是linux系统下基于ssh登陆进行安全的远程文件拷贝命令。
