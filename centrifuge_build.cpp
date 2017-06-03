@@ -17,12 +17,12 @@
  * along with Bowtie 2.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <iostream>
+#include <iostream>  #表示从系统目录下开始搜索，然后再搜索PATH环境变量所列出的目录，不搜索当前目录
 #include <fstream>
 #include <string>
 #include <cassert>
 #include <getopt.h>
-#include "assert_helpers.h"
+#include "assert_helpers.h" #表示从当前目录开始搜索，然后是系统目录和PATH环境变量所列出的目录
 #include "endian_swap.h"
 #include "bt2_idx.h"
 #include "bt2_io.h"
