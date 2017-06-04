@@ -60,7 +60,7 @@ static int32_t offRate;
 static int32_t ftabChars;
 static int32_t localOffRate;
 static int32_t localFtabChars;
-static string conversion_table_fname; // conversion table file name
+static string conversion_table_fname; // conversion table file name  内建数据类型string，该数据类型可以替代C语言中char数组。需要使用string数据类型时则需要在程序中包含头文件string
 static string taxonomy_fname; // taxonomy tree file name
 static string name_table_fname; // name table file name
 static string size_table_fname; // contig size table file name
