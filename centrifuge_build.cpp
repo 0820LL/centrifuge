@@ -44,9 +44,9 @@
 int verbose;
 static int sanityCheck;
 static int format;
-static TIndexOffU bmax;
+static TIndexOffU bmax;  # TIndexOffU在btypes.h定义 
 static TIndexOffU bmaxMultSqrt;
-static uint32_t bmaxDivN;
+static uint32_t bmaxDivN;  # typedef unsigned long int uint32_t
 static int dcv;
 static int noDc;
 static int entireSA;
