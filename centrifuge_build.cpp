@@ -140,7 +140,7 @@ enum {
 /**
  * Print a detailed usage message to the provided output stream.
  */
-static void printUsage(ostream& out) {
+static void printUsage(ostream& out) {  //把引用作为参数  定义一个名字为out的引用型输出流对象 ostream是一个类 支持输入输出
 	out << "Centrifuge version " << string(CENTRIFUGE_VERSION).c_str() << " by Daehwan Kim (infphilo@gmail.com, http://www.ccb.jhu.edu/people/infphilo)" << endl;
 	string tool_name = "centrifuge-build-bin";
 	if(wrapper == "basic-0") {
