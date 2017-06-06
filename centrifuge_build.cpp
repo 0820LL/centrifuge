@@ -166,14 +166,14 @@ static void printUsage(ostream& out) {  //把引用作为参数  定义一个�
 	    << "    -3/--justref            just build .3/.4.bt2 (packed reference) portion" << endl
 	    << "    -o/--offrate <int>      SA is sampled every 2^offRate BWT chars (default: 5)" << endl
 	    << "    -t/--ftabchars <int>    # of chars consumed in initial lookup (default: 10)" << endl
-        << "    --conversion-table <file name>  a table that converts any id to a taxonomy id" << endl
-        << "    --taxonomy-tree    <file name>  taxonomy tree" << endl
-        << "    --name-table       <file name>  names corresponding to taxonomic IDs" << endl
-        << "    --size-table       <file name>  table of contig (or genome) sizes" << endl
+            << "    --conversion-table <file name>  a table that converts any id to a taxonomy id" << endl
+            << "    --taxonomy-tree    <file name>  taxonomy tree" << endl
+            << "    --name-table       <file name>  names corresponding to taxonomic IDs" << endl
+            << "    --size-table       <file name>  table of contig (or genome) sizes" << endl
 	    << "    --seed <int>            seed for random number generator" << endl
 	    << "    -q/--quiet              verbose output (for debugging)" << endl
-        << "    -p/--threads <int>      number of alignment threads to launch (1)" << endl
-        << "    --kmer-count <int>      k size for counting the number of distinct k-mer" << endl
+            << "    -p/--threads <int>      number of alignment threads to launch (1)" << endl
+            << "    --kmer-count <int>      k size for counting the number of distinct k-mer" << endl
 	    << "    -h/--help               print detailed description of tool and its options" << endl
 	    << "    --usage                 print this usage message" << endl
 	    << "    --version               print version information and quit" << endl
@@ -188,9 +188,9 @@ static void printUsage(ostream& out) {  //把引用作为参数  定义一个�
 	}
 }
 
-static const char *short_options = "qrap:h?nscfl:i:o:t:h:3C";
+static const char *short_options = "qrap:h?nscfl:i:o:t:h:3C";  //定义了静态常量 指针short_options
 
-static struct option long_options[] = {
+static struct option long_options[] = {  //定义结构体
 	{(char*)"quiet",          no_argument,       0,            'q'},
 	{(char*)"sanity",         no_argument,       0,            's'},
 	{(char*)"packed",         no_argument,       0,            'p'},
@@ -206,26 +206,26 @@ static struct option long_options[] = {
 	{(char*)"version",        no_argument,       &showVersion, 1},
 	{(char*)"noauto",         no_argument,       0,            'a'},
 	{(char*)"noblocks",       required_argument, 0,            'n'},
-    {(char*)"threads",        required_argument, 0,            ARG_THREADS},
+        {(char*)"threads",        required_argument, 0,            ARG_THREADS},
 	{(char*)"linerate",       required_argument, 0,            'l'},
 	{(char*)"linesperside",   required_argument, 0,            'i'},
 	{(char*)"offrate",        required_argument, 0,            'o'},
 	{(char*)"ftabchars",      required_argument, 0,            't'},
-    {(char*)"localoffrate",   required_argument, 0,            ARG_LOCAL_OFFRATE},
+        {(char*)"localoffrate",   required_argument, 0,            ARG_LOCAL_OFFRATE},
 	{(char*)"localftabchars", required_argument, 0,            ARG_LOCAL_FTABCHARS},
-    {(char*)"conversion-table", required_argument, 0,          ARG_CONVERSION_TABLE},
-    {(char*)"taxonomy-tree",    required_argument, 0,          ARG_TAXONOMY_TREE},
-    {(char*)"name-table",       required_argument, 0,          ARG_NAME_TABLE},
-    {(char*)"size-table",       required_argument, 0,          ARG_SIZE_TABLE},
+        {(char*)"conversion-table", required_argument, 0,          ARG_CONVERSION_TABLE},
+        {(char*)"taxonomy-tree",    required_argument, 0,          ARG_TAXONOMY_TREE},
+        {(char*)"name-table",       required_argument, 0,          ARG_NAME_TABLE},
+        {(char*)"size-table",       required_argument, 0,          ARG_SIZE_TABLE},
 	{(char*)"help",           no_argument,       0,            'h'},
 	{(char*)"ntoa",           no_argument,       0,            ARG_NTOA},
 	{(char*)"justref",        no_argument,       0,            '3'},
 	{(char*)"noref",          no_argument,       0,            'r'},
 	{(char*)"kmer-count",     required_argument, 0,            ARG_KMER_COUNT},
-    {(char*)"sa",             no_argument,       0,            ARG_SA},
+        {(char*)"sa",             no_argument,       0,            ARG_SA},
 	{(char*)"reverse-each",   no_argument,       0,            ARG_REVERSE_EACH},
 	{(char*)"usage",          no_argument,       0,            ARG_USAGE},
-    {(char*)"wrapper",        required_argument, 0,            ARG_WRAPPER},
+        {(char*)"wrapper",        required_argument, 0,            ARG_WRAPPER},
 	{(char*)0, 0, 0, 0} // terminator
 };
 
@@ -234,7 +234,7 @@ static struct option long_options[] = {
  * if it is less than 'lower', then output the given error message and
  * exit with an error and a usage message.
  */
-template<typename T>
+template<typename T>      //定义函数模板
 static T parseNumber(T lower, const char *errmsg) {
 	char *endPtr= NULL;
 	T t = (T)strtoll(optarg, &endPtr, 10);
@@ -255,7 +255,7 @@ static T parseNumber(T lower, const char *errmsg) {
 /**
  * Read command-line arguments
  */
-static void parseOptions(int argc, const char **argv) {
+static void parseOptions(int argc, const char **argv) {    //定义函数
 	int option_index = 0;
 	int next_option;
 	do {
@@ -370,7 +370,7 @@ static void parseOptions(int argc, const char **argv) {
 	}
 }
 
-EList<string> filesWritten;
+EList<string> filesWritten;  //EList在ds.h中定义 是一个list List是一个双向链表,双链表既可以向前又向后链接他的元素
 
 /**
  * Delete all the index files that we tried to create.  For when we had to
@@ -389,15 +389,15 @@ static void deleteIdxFiles(
 	}
 }
 
-extern void initializeCntLut();
+extern void initializeCntLut();  //告诉编译器存在着一个变量或者一个函数，如果在当前编译语句的前面中没有找到相应的变量或者函数，也会在当前文件的后面或者其它文件中定义
 
 /**
  * Drive the index construction process and optionally sanity-check the
  * result.
  */
-template<typename TStr>
+template<typename TStr>   //定义函数模板
 static void driver(
-                   const string& infile,
+                   const string& infile,   //定义引用   作为参数
                    EList<string>& infiles,
                    const string& conversion_table_fname,
                    const string& taxonomy_fname,
@@ -407,10 +407,10 @@ static void driver(
                    bool packed,
                    int reverse)
 {
-    initializeCntLut();
-	EList<FileBuf*> is(MISC_CAT);
+        initializeCntLut();    // 在ccnt_lut.cpp中定义。没有返回值。
+	EList<FileBuf*> is(MISC_CAT);  // MISC_CAT在mem_ids.h中定义。#define MISC_CAT  ((int) 9)
 	bool bisulfite = false;
-	RefReadInParams refparams(false, reverse, nsToAs, bisulfite);
+	RefReadInParams refparams(false, reverse, nsToAs, bisulfite);  // RefReadInParams是结构体。在ref_read.h中定义。
 	assert_gt(infiles.size(), 0);
 	if(format == CMDLINE) {
 		// Adapt sequence strings to stringstreams open for input
