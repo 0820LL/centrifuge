@@ -190,43 +190,43 @@ static void printUsage(ostream& out) {  //把引用作为参数  定义一个�
 
 static const char *short_options = "qrap:h?nscfl:i:o:t:h:3C";  //定义了静态常量 指针short_options
 
-static struct option long_options[] = {  //定义结构体
-	{(char*)"quiet",          no_argument,       0,            'q'},
-	{(char*)"sanity",         no_argument,       0,            's'},
-	{(char*)"packed",         no_argument,       0,            'p'},
-	{(char*)"little",         no_argument,       &bigEndian,   0},
-	{(char*)"big",            no_argument,       &bigEndian,   1},
-	{(char*)"bmax",           required_argument, 0,            ARG_BMAX},
-	{(char*)"bmaxmultsqrt",   required_argument, 0,            ARG_BMAX_MULT},
-	{(char*)"bmaxdivn",       required_argument, 0,            ARG_BMAX_DIV},
-	{(char*)"dcv",            required_argument, 0,            ARG_DCV},
-	{(char*)"nodc",           no_argument,       &noDc,        1},
-	{(char*)"seed",           required_argument, 0,            ARG_SEED},
-	{(char*)"entiresa",       no_argument,       &entireSA,    1},
-	{(char*)"version",        no_argument,       &showVersion, 1},
-	{(char*)"noauto",         no_argument,       0,            'a'},
-	{(char*)"noblocks",       required_argument, 0,            'n'},
-        {(char*)"threads",        required_argument, 0,            ARG_THREADS},
-	{(char*)"linerate",       required_argument, 0,            'l'},
-	{(char*)"linesperside",   required_argument, 0,            'i'},
-	{(char*)"offrate",        required_argument, 0,            'o'},
-	{(char*)"ftabchars",      required_argument, 0,            't'},
-        {(char*)"localoffrate",   required_argument, 0,            ARG_LOCAL_OFFRATE},
-	{(char*)"localftabchars", required_argument, 0,            ARG_LOCAL_FTABCHARS},
-        {(char*)"conversion-table", required_argument, 0,          ARG_CONVERSION_TABLE},
-        {(char*)"taxonomy-tree",    required_argument, 0,          ARG_TAXONOMY_TREE},
-        {(char*)"name-table",       required_argument, 0,          ARG_NAME_TABLE},
-        {(char*)"size-table",       required_argument, 0,          ARG_SIZE_TABLE},
-	{(char*)"help",           no_argument,       0,            'h'},
-	{(char*)"ntoa",           no_argument,       0,            ARG_NTOA},
-	{(char*)"justref",        no_argument,       0,            '3'},
-	{(char*)"noref",          no_argument,       0,            'r'},
-	{(char*)"kmer-count",     required_argument, 0,            ARG_KMER_COUNT},
-        {(char*)"sa",             no_argument,       0,            ARG_SA},
-	{(char*)"reverse-each",   no_argument,       0,            ARG_REVERSE_EACH},
-	{(char*)"usage",          no_argument,       0,            ARG_USAGE},
-        {(char*)"wrapper",        required_argument, 0,            ARG_WRAPPER},
-	{(char*)0, 0, 0, 0} // terminator
+static struct option long_options[] = {  //定义成员是option结构体的数组，struct option定义在getopt.h(/usr/include)中。并初始化。
+	{(char*)"quiet",            no_argument,       0,            'q'},  // option结构体有4个成员
+	{(char*)"sanity",           no_argument,       0,            's'},
+	{(char*)"packed",           no_argument,       0,            'p'},
+	{(char*)"little",           no_argument,       &bigEndian,   0},
+	{(char*)"big",              no_argument,       &bigEndian,   1},
+	{(char*)"bmax",             required_argument, 0,            ARG_BMAX},
+	{(char*)"bmaxmultsqrt",     required_argument, 0,            ARG_BMAX_MULT},
+	{(char*)"bmaxdivn",         required_argument, 0,            ARG_BMAX_DIV},
+	{(char*)"dcv",              required_argument, 0,            ARG_DCV},
+	{(char*)"nodc",             no_argument,       &noDc,        1},
+	{(char*)"seed",             required_argument, 0,            ARG_SEED},
+	{(char*)"entiresa",         no_argument,       &entireSA,    1},
+	{(char*)"version",          no_argument,       &showVersion, 1},
+	{(char*)"noauto",           no_argument,       0,            'a'},
+	{(char*)"noblocks",         required_argument, 0,            'n'},
+        {(char*)"threads",          required_argument, 0,            ARG_THREADS},
+	{(char*)"linerate",         required_argument, 0,            'l'},
+	{(char*)"linesperside",     required_argument, 0,            'i'},
+	{(char*)"offrate",          required_argument, 0,            'o'},
+	{(char*)"ftabchars",        required_argument, 0,            't'},
+        {(char*)"localoffrate",     required_argument, 0,            ARG_LOCAL_OFFRATE},
+	{(char*)"localftabchars",   required_argument, 0,            ARG_LOCAL_FTABCHARS},
+        {(char*)"conversion-table", required_argument, 0,            ARG_CONVERSION_TABLE},
+        {(char*)"taxonomy-tree",    required_argument, 0,            ARG_TAXONOMY_TREE},
+        {(char*)"name-table",       required_argument, 0,            ARG_NAME_TABLE},
+        {(char*)"size-table",       required_argument, 0,            ARG_SIZE_TABLE},
+	{(char*)"help",             no_argument,       0,            'h'},
+	{(char*)"ntoa",             no_argument,       0,            ARG_NTOA},
+	{(char*)"justref",          no_argument,       0,            '3'},
+	{(char*)"noref",            no_argument,       0,            'r'},
+	{(char*)"kmer-count",       required_argument, 0,            ARG_KMER_COUNT},
+        {(char*)"sa",               no_argument,       0,            ARG_SA},
+	{(char*)"reverse-each",     no_argument,       0,            ARG_REVERSE_EACH},
+	{(char*)"usage",            no_argument,       0,            ARG_USAGE},
+        {(char*)"wrapper",          required_argument, 0,            ARG_WRAPPER},
+	{(char*)0,                  0,                 0,            0} // terminator
 };
 
 /**
@@ -234,15 +234,15 @@ static struct option long_options[] = {  //定义结构体
  * if it is less than 'lower', then output the given error message and
  * exit with an error and a usage message.
  */
-template<typename T>      //定义函数模板
+template<typename T>      //定义函数模板  T表示一个类型，实际类型根据函数的使用情况来定。
 static T parseNumber(T lower, const char *errmsg) {
 	char *endPtr= NULL;
-	T t = (T)strtoll(optarg, &endPtr, 10);
+	T t = (T)strtoll(optarg, &endPtr, 10);  // 调用函数strtoll   3333333333333333
 	if (endPtr != NULL) {
 		if (t < lower) {
 			cerr << errmsg << endl;
 			printUsage(cerr);
-			throw 1;
+			throw 1;   
 		}
 		return t;
 	}
