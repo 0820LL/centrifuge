@@ -111,9 +111,9 @@ enum {
 /**
  * Parameters governing treatment of references as they're read in.
  */
-struct RefReadInParams {
-	RefReadInParams(bool col, int r, bool nsToA, bool bisulf) :
-		color(col), reverse(r), nsToAs(nsToA), bisulfite(bisulf) { }
+struct RefReadInParams {    //定义结构体
+	RefReadInParams(bool col, int r, bool nsToA, bool bisulf) :     //冒号起分隔作用
+		color(col), reverse(r), nsToAs(nsToA), bisulfite(bisulf) { }   //构造函数  通过参数初始化列表进行初始化 相当于在函数体内 color=col
 	// extract colors from reference
 	bool color;
 	// reverse each reference sequence before passing it along
