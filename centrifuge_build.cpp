@@ -237,12 +237,12 @@ static struct option long_options[] = {  //定义成员是option结构体的数
 template<typename T>      //定义函数模板  T表示一个类型，实际类型根据函数的使用情况来定。
 static T parseNumber(T lower, const char *errmsg) {
 	char *endPtr= NULL;
-	T t = (T)strtoll(optarg, &endPtr, 10);  // 调用函数strtoll   3333333333333333
+	T t = (T)strtoll(optarg, &endPtr, 10);  // 不知道函数strtoll在哪定义的  返回转换后的10进制长整型数
 	if (endPtr != NULL) {
 		if (t < lower) {
 			cerr << errmsg << endl;
-			printUsage(cerr);
-			throw 1;   
+			printUsage(cerr);  //
+			throw 1;    // 抛出1 表示异常
 		}
 		return t;
 	}
@@ -255,22 +255,22 @@ static T parseNumber(T lower, const char *errmsg) {
 /**
  * Read command-line arguments
  */
-static void parseOptions(int argc, const char **argv) {    //定义函数
+static void parseOptions(int argc, const char **argv) {    //定义函数 char **argv 与 char *argv[]完全等同
 	int option_index = 0;
 	int next_option;
 	do {
-		next_option = getopt_long(
+		next_option = getopt_long(                        //getopt_long在
 			argc, const_cast<char**>(argv),
 			short_options, long_options, &option_index);
 		switch (next_option) {
-            case ARG_WRAPPER:
+                        case ARG_WRAPPER:
 				wrapper = optarg;
 				break;
 			case 'f': format = FASTA; break;
-			case 'c': format = CMDLINE; break;
-            case ARG_THREADS:
+			case 'c': format = CMDLINE; break;   // 枚举型成员  在formats.h中定义
+                        case ARG_THREADS:
 			case 'p': nthreads = parseNumber<int>(1, "-p arg must be at least 1");
-                break;
+                                  break;
 			case 'C':
 				cerr << "Error: -C specified but Bowtie 2 does not support colorspace input." << endl;
 				throw 1;
@@ -284,16 +284,16 @@ static void parseOptions(int argc, const char **argv) {    //定义函数
 			case 'o':
 				offRate = parseNumber<int>(0, "-o/--offRate arg must be at least 0");
 				break;
-            case ARG_LOCAL_OFFRATE:
-                localOffRate = parseNumber<int>(0, "-o/--localoffrate arg must be at least 0");
-                break;
+                        case ARG_LOCAL_OFFRATE:
+                                localOffRate = parseNumber<int>(0, "-o/--localoffrate arg must be at least 0");
+                                break;
 			case '3':
 				justRef = true;
 				break;
 			case 't':
 				ftabChars = parseNumber<int>(1, "-t/--ftabChars arg must be at least 1");
 				break;
-            case ARG_LOCAL_FTABCHARS:
+                        case ARG_LOCAL_FTABCHARS:
 				localFtabChars = parseNumber<int>(1, "-t/--localftabchars arg must be at least 1");
 				break;
 			case 'n':
@@ -329,25 +329,25 @@ static void parseOptions(int argc, const char **argv) {    //定义函数
 			case ARG_REVERSE_EACH:
 				reverseEach = true;
 				break;
-            case ARG_SA:
-                doSaFile = true;
-                break;
+                        case ARG_SA:
+                                doSaFile = true;
+                                break;
 			case ARG_NTOA: nsToAs = true; break;
-            case ARG_CONVERSION_TABLE:
-                conversion_table_fname = optarg;
-                break;
-            case ARG_TAXONOMY_TREE:
-                taxonomy_fname = optarg;
-                break;
-            case ARG_NAME_TABLE:
-                name_table_fname = optarg;
-                break;
-            case ARG_SIZE_TABLE:
-                size_table_fname = optarg;
-                break;
-            case ARG_KMER_COUNT:
-                kmer_count = parseNumber<int>(1, "--kmer-count arg must be at least 1");
-                break;
+                        case ARG_CONVERSION_TABLE:
+                                conversion_table_fname = optarg;
+                                break;
+                        case ARG_TAXONOMY_TREE:
+                                taxonomy_fname = optarg;
+                                break;
+                        case ARG_NAME_TABLE:
+                                name_table_fname = optarg;
+                                break;
+                        case ARG_SIZE_TABLE:
+                                size_table_fname = optarg;
+                                break;
+                        case ARG_KMER_COUNT:
+                                kmer_count = parseNumber<int>(1, "--kmer-count arg must be at least 1");
+                                break;
 			case 'a': autoMem = false; break;
 			case 'q': verbose = false; break;
 			case 's': sanityCheck = true; break;
@@ -370,21 +370,19 @@ static void parseOptions(int argc, const char **argv) {    //定义函数
 	}
 }
 
-EList<string> filesWritten;  //EList在ds.h中定义 是一个list List是一个双向链表,双链表既可以向前又向后链接他的元素
+EList<string> filesWritten;    //类模板EList在ds.h中定义  类型是string
 
 /**
  * Delete all the index files that we tried to create.  For when we had to
  * abort the index-building process due to an error.
  */
-static void deleteIdxFiles(
-                           const string& outfile,
+static void deleteIdxFiles(const string& outfile,      //引用作为参数  
                            bool doRef,
                            bool justRef)
 {
 	
-	for(size_t i = 0; i < filesWritten.size(); i++) {
-		cerr << "Deleting \"" << filesWritten[i].c_str()
-		     << "\" file written during aborted indexing attempt." << endl;
+	for(size_t i = 0; i < filesWritten.size(); i++) {    //size_t是一种机器相关的无符号类型，其被设计的足够大以便能表示内存中任意对象的大小。
+		cerr << "Deleting \"" << filesWritten[i].c_str()<< "\" file written during aborted indexing attempt." << endl;
 		remove(filesWritten[i].c_str());
 	}
 }
@@ -408,21 +406,21 @@ static void driver(
                    int reverse)
 {
         initializeCntLut();    // 在ccnt_lut.cpp中定义。没有返回值。
-	EList<FileBuf*> is(MISC_CAT);  // MISC_CAT在mem_ids.h中定义。#define MISC_CAT  ((int) 9)
+	EList<FileBuf*> is(MISC_CAT);  // MISC_CAT在mem_ids.h中定义。 #define MISC_CAT  ((int) 9)
 	bool bisulfite = false;
 	RefReadInParams refparams(false, reverse, nsToAs, bisulfite);  // RefReadInParams是结构体。在ref_read.h中定义。
-	assert_gt(infiles.size(), 0);
-	if(format == CMDLINE) {
+	assert_gt(infiles.size(), 0);  //在assert_helpers.h中定义的宏 如果infiles.size()<=0 报错
+	if(format == CMDLINE) {  
 		// Adapt sequence strings to stringstreams open for input
-		stringstream *ss = new stringstream();
-		for(size_t i = 0; i < infiles.size(); i++) {
+		stringstream *ss = new stringstream();    //为指针ss分配了一个stringstream型的空间
+		for(size_t i = 0; i < infiles.size(); i++) {    //size_t一种数据类型  整型的一种
 			(*ss) << ">" << i << endl << infiles[i].c_str() << endl;
 		}
-		FileBuf *fb = new FileBuf(ss);
+		FileBuf *fb = new FileBuf(ss);   //fileBuf在filebuf.h中定义的一个类
 		assert(fb != NULL);
 		assert(!fb->eof());
 		assert(fb->get() == '>');
-		ASSERT_ONLY(fb->reset());
+		ASSERT_ONLY(fb->reset());   //
 		assert(!fb->eof());
 		is.push_back(fb);
 	} else {
@@ -443,33 +441,33 @@ static void driver(
 			assert(fb->get() == '>');
 			ASSERT_ONLY(fb->reset());
 			assert(!fb->eof());
-			is.push_back(fb);
+			is.push_back(fb);  //在列表is的末尾添加一个元素 is在bt2_idx.h中定义
 		}
 	}
-	if(is.empty()) {
+	if(is.empty()) {   //如果列表is是空则返回true
 		cerr << "Warning: All fasta inputs were empty" << endl;
 		throw 1;
 	}
 	// Vector for the ordered list of "records" comprising the input
 	// sequences.  A record represents a stretch of unambiguous
 	// characters in one of the input sequences.
-	EList<RefRecord> szs(MISC_CAT);
-	std::pair<size_t, size_t> sztot;
+	EList<RefRecord> szs(MISC_CAT);   //
+	std::pair<size_t, size_t> sztot;  //在bt2_idx.h中定义
 	{
 		if(verbose) cout << "Reading reference sizes" << endl;
-		Timer _t(cout, "  Time reading reference sizes: ", verbose);
-        sztot = BitPairReference::szsFromFasta(is, string(), bigEndian, refparams, szs, sanityCheck);
+		Timer _t(cout, "  Time reading reference sizes: ", verbose);  //Timer是个类，在timer.h中定义。声明了一个_t对象
+        sztot = BitPairReference::szsFromFasta(is, string(), bigEndian, refparams, szs, sanityCheck);  //BitPairReference是个类，在reference.h中定义
 	}
-	if(justRef) return;
-	assert_gt(sztot.first, 0);
+	if(justRef) return;  
+	assert_gt(sztot.first, 0);  //在assert_helpers.h中定义的宏 如果infiles.size()<=0 报错
 	assert_gt(sztot.second, 0);
 	assert_gt(szs.size(), 0);
 	// Construct index from input strings and parameters
-	filesWritten.push_back(outfile + ".1." + gEbwt_ext);
+	filesWritten.push_back(outfile + ".1." + gEbwt_ext);  //filesWritten是一个列表  push_back把一个对象放到一个list的后面
 	filesWritten.push_back(outfile + ".2." + gEbwt_ext);
-    filesWritten.push_back(outfile + ".3." + gEbwt_ext);
-	TStr s;
-	Ebwt<TIndexOffU> ebwt(
+        filesWritten.push_back(outfile + ".3." + gEbwt_ext); 
+	TStr s;   //
+	Ebwt<TIndexOffU> ebwt(   //
                           s,
                           packed,
                           0,
@@ -519,7 +517,7 @@ static void driver(
                             true,  // load rstarts?
                             false,
                             false);
-		SString<char> s2;
+		SString<char> s2;  //
 		ebwt.restore(s2);
 		ebwt.evictFromMemory();
 		{
@@ -530,10 +528,10 @@ static void driver(
                                                                             refparams,   // reference read-in parameters
                                                                             seed);       // pseudo-random number generator seed
 			if(refparams.reverse == REF_READ_REVERSE) {
-				joinedss.reverse();
+				joinedss.reverse();  //
 			}
 			assert_eq(joinedss.length(), s2.length());
-			assert(sstr_eq(joinedss, s2));
+			assert(sstr_eq(joinedss, s2));  // 
 		}
 		if(verbose) {
 			if(s2.length() < 1000) {
@@ -565,17 +563,17 @@ int centrifuge_build(int argc, const char **argv) {
 		argv0 = argv[0];
 		if(showVersion) {
 			cout << argv0 << " version " << string(CENTRIFUGE_VERSION).c_str() << endl;
-			if(sizeof(void*) == 4) {
+			if(sizeof(void*) == 4) {     //sizeof()返回一条表达式或一个类型名字所占的字节数。
 				cout << "32-bit" << endl;
 			} else if(sizeof(void*) == 8) {
 				cout << "64-bit" << endl;
 			} else {
 				cout << "Neither 32- nor 64-bit: sizeof(void*) = " << sizeof(void*) << endl;
 			}
-			cout << "Built on " << BUILD_HOST << endl;
-			cout << BUILD_TIME << endl;
-			cout << "Compiler: " << COMPILER_VERSION << endl;
-			cout << "Options: " << COMPILER_OPTIONS << endl;
+			cout << "Built on " << BUILD_HOST << endl;   //
+			cout << BUILD_TIME << endl;    //
+			cout << "Compiler: " << COMPILER_VERSION << endl;    //
+			cout << "Options: " << COMPILER_OPTIONS << endl;    //
 			cout << "Sizeof {int, long, long long, void*, size_t, off_t}: {"
 				 << sizeof(int)
 				 << ", " << sizeof(long) << ", " << sizeof(long long)
@@ -634,8 +632,8 @@ int centrifuge_build(int argc, const char **argv) {
 				 << "  Offset rate: " << offRate << " (one in " << (1<<offRate) << ")" << endl
 				 << "  FTable chars: " << ftabChars << endl
 				 << "  Strings: " << (packed? "packed" : "unpacked") << endl
-                 << "  Local offset rate: " << localOffRate << " (one in " << (1<<localOffRate) << ")" << endl
-                 << "  Local fTable chars: " << localFtabChars << endl
+                                 << "  Local offset rate: " << localOffRate << " (one in " << (1<<localOffRate) << ")" << endl
+                                 << "  Local fTable chars: " << localFtabChars << endl
 				 ;
 			if(bmax == OFF_MASK) {
 				cout << "  Max bucket size: default" << endl;
@@ -669,7 +667,7 @@ int centrifuge_build(int argc, const char **argv) {
 			}
 		}
 		// Seed random number generator
-		srand(seed);
+		srand(seed);    //
 		{
 			Timer timer(cout, "Total time for call to driver() for forward index: ", verbose);
 			if(!packed) {
