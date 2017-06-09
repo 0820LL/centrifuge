@@ -27,7 +27,8 @@
 
 using namespace std;
 
-extern "C" {
+extern "C" {    //被extern "C"修饰的变量和函数是按照C语言方式编译和连接的。目的是实现C++与C及其它语言的混合编程
+                //注意：extern "C"指令中的C，表示的一种编译和连接规约，而不是一种语言。C表示符合C语言的编译和连接规约的任何语言，如Fortran、assembler等。
 	int centrifuge_build(int argc, const char **argv);
 }
 
@@ -41,16 +42,16 @@ extern "C" {
  * bowtie-build.
  */
 int main(int argc, const char **argv) {
-	if(argc > 2 && strcmp(argv[1], "-A") == 0) {
+	if(argc > 2 && strcmp(argv[1], "-A") == 0) {    //strcmp()比较两个字符串，相等返回零。
 		const char *file = argv[2];
-		ifstream in;
-		in.open(file);
-		char buf[4096];
+		ifstream in;    //读操作（输入）的文件类(由istream引申而来) ifstream是一个类，声明对象in。
+		in.open(file);    
+		char buf[4096];   //定义字符数组
 		int lastret = -1;
-		while(in.getline(buf, 4095)) {
-			EList<string> args(MISC_CAT);
-			args.push_back(string(argv[0]));
-			tokenize(buf, " \t", args);
+		while(in.getline(buf, 4095)) {    //获取文件流中的一行数据，保存为一个c字符串形式（char *），结束标志是换行符 \n，能写入s的最大字符数量（包括'\0'）是4095。
+			EList<string> args(MISC_CAT);    //
+			args.push_back(string(argv[0]));    //
+			tokenize(buf, " \t", args);    //
 			const char **myargs = (const char**)malloc(sizeof(char*)*args.size());
 			for(size_t i = 0; i < args.size(); i++) {
 				myargs[i] = args[i].c_str();
