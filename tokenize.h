@@ -29,32 +29,37 @@ using namespace std;
 /**
  * Split string s according to given delimiters.  Mostly borrowed
  * from C++ Programming HOWTO 7.3.
+ *
+ *
  */
-template<typename T>
-static inline void tokenize(
-	const string& s,
+template<typename T>  //T代表一种类型
+static inline void tokenize(     //內联函数
+	const string& s,     //引用作为参数  const 说明不能通过引用s修改引用s指向的对象的值。
 	const string& delims,
 	T& ss,
-	size_t max = std::numeric_limits<size_t>::max())
+	size_t max = std::numeric_limits<size_t>::max())    //returns the largest finite value of the given type(size_t)
 {
 	//string::size_type lastPos = s.find_first_not_of(delims, 0);
-	string::size_type lastPos = 0;
-	string::size_type pos = s.find_first_of(delims, lastPos);
-	while (string::npos != pos || string::npos != lastPos) {
-		ss.push_back(s.substr(lastPos, pos - lastPos));
-		lastPos = s.find_first_not_of(delims, pos);
+	string::size_type lastPos = 0;    // size_type是size_t类型  lastPos用来指开始搜索的位置
+	string::size_type pos = s.find_first_of(delims, lastPos);    //return the position of the first character that matches.
+	while (string::npos != pos || string::npos != lastPos) {    //npos = -1  如果搜索的到
+		ss.push_back(s.substr(lastPos, pos - lastPos));  //返回子字符串 参数是起始位置和长度。
+		lastPos = s.find_first_not_of(delims, pos);  //返回第一个不匹配字符的位置
 		pos = s.find_first_of(delims, lastPos);
-		if(ss.size() == (max - 1)) {
+		if(ss.size() == (max - 1)) {  //size()返回字符串长度
 			pos = string::npos;
 		}
 	}
 }
 
+/*
+*
+*/
 template<typename T>
 static inline void tokenize(const std::string& s, char delim, T& ss) {
-	std::string token;
-	std::istringstream iss(s);
-	while(getline(iss, token, delim)) {
+	std::string token;  //  token是个空字符串。 
+	std::istringstream iss(s);    //构造istringstream对象iss
+	while(getline(iss, token, delim)) {  //从iss中取characters放入token中，直到发现字符delim为止。
 		ss.push_back(token);
 	}
 }
